@@ -4,7 +4,7 @@ import queue
 import signal
 import sys
 
-PORT = 7500
+PORT = 10000
 HOST = '0.0.0.0'
 pending_clients = queue.Queue()
 
