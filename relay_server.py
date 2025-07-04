@@ -4,7 +4,7 @@ import queue
 import signal
 import sys
 
-PORT = 10000
+PORT = 7500
 HOST = '0.0.0.0'
 pending_clients = queue.Queue()
 
@@ -26,8 +26,20 @@ def relay(conn1, conn2):
             src.close()
             dst.close()
 
+    # Send host flag ONCE right after pairing
+    try:
+        conn1.sendall(b'\x01')  # conn1 is host
+        conn2.sendall(b'\x00')  # conn2 is guest
+    except Exception as e:
+        print("Error sending host flags:", e)
+        conn1.close()
+        conn2.close()
+        return
+
+    # Now start relaying data between the two clients
     threading.Thread(target=forward, args=(conn1, conn2), daemon=True).start()
     threading.Thread(target=forward, args=(conn2, conn1), daemon=True).start()
+
 
 
 def handle_client(conn):
@@ -73,4 +85,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
